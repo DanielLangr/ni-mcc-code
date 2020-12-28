@@ -1,9 +1,8 @@
-//#include <atomic>
 #include <iostream>
 #include <thread>
 
-extern "C" void store(char*);
-extern "C" short load(char*);
+extern "C" void store(void*);
+extern "C" short load(void*);
 
 alignas(64) char buf[65];
 
@@ -12,11 +11,8 @@ char* ptr = buf + 63;
 
 static long n = 1'000'000'000L;
 
-//std::atomic<bool> finished {false};
-
 void f1()
 {
-// while (!finished)
    for (long i = 0; i < n; i++)
       store(ptr);
 }
@@ -40,8 +36,6 @@ void f2()
       else other++;
    }
 
-// finished = true;
-   
    std::cout << "0x0000: " << v0x0000 << std::endl;
    std::cout << "0x0101: " << v0x0101 << std::endl;
    std::cout << "0x0100: " << v0x0100 << std::endl;
