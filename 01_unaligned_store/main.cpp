@@ -43,9 +43,7 @@ void f2()
    std::cout << "0x0001: " << v0x0001 << std::endl;
    std::cout << "other: " << other << std::endl;
 
-   std::cout << std::endl;
    std::cout << "expected sum: " << n << std::endl;
-
    long sum = v0x0000 + v0x0101 + v0x0100 + v0x0001 + other;
    std::cout << "sum: " << sum << std::endl;
 }
