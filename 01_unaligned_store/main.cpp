@@ -28,7 +28,7 @@ void f2()
 
    for (long i = 0; i < n; i++)
    {
-      short a = load(ptr);
+      uint16_t a = load(ptr);
 
       if (a == 0x0000) v0x0000++;
       else if (a == 0x0101) v0x0101++;
