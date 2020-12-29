@@ -1,13 +1,14 @@
+#include <cstdint>
+#include <cstdlib>
 #include <iostream>
 #include <thread>
 
 extern "C" void store(void*);
-extern "C" short load(void*);
+extern "C" uint16_t load(void*);
 
 alignas(64) char buf[65];
 
-char* ptr = buf + 63;
-//char* ptr = buf + 0;
+char* ptr;
 
 static long n = 1'000'000'000L;
 
@@ -50,8 +51,11 @@ void f2()
 }
 
 
-int main()
+int main(int arc, char* argv[])
 {
+   int offset = std::atoi(argv[1]);
+   ptr = buf + offset;
+
    std::thread t1(f1);
    std::thread t2(f2);
 
