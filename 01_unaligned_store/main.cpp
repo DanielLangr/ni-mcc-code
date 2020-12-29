@@ -18,31 +18,21 @@ void f1(void* ptr)
 
 void f2(void* ptr)
 {
-   long v0x0000 = 0;
-   long v0x0101 = 0;
-   long v0x0100 = 0;
-   long v0x0001 = 0;
-   long other = 0;
+   long v[258]{};
 
    for (long i = 0; i < n; i++)
    {
       uint16_t a = load(ptr);
-
-      if (a == 0x0000) v0x0000++;
-      else if (a == 0x0101) v0x0101++;
-      else if (a == 0x0100) v0x0100++;
-      else if (a == 0x0001) v0x0001++;
-      else other++;
+      v[a]++;
    }
 
-   std::cout << "0x0000: " << v0x0000 << std::endl;
-   std::cout << "0x0101: " << v0x0101 << std::endl;
-   std::cout << "0x0100: " << v0x0100 << std::endl;
-   std::cout << "0x0001: " << v0x0001 << std::endl;
-   std::cout << "other: " << other << std::endl;
+   std::cout << "0x0000: " << v[0x0000] << std::endl;
+   std::cout << "0x0101: " << v[0x0101] << std::endl;
+   std::cout << "0x0100: " << v[0x0100] << std::endl;
+   std::cout << "0x0001: " << v[0x0001] << std::endl;
 
    std::cout << "expected sum: " << n << std::endl;
-   long sum = v0x0000 + v0x0101 + v0x0100 + v0x0001 + other;
+   long sum = v[0x0000] + v[0x0101] + v[0x0100] + v[0x0001];
    std::cout << "sum: " << sum << std::endl;
 }
 
