@@ -8,17 +8,15 @@ extern "C" uint16_t load(void*);
 
 alignas(64) char buf[65];
 
-char* ptr;
-
 static long n = 1'000'000'000L;
 
-void f1()
+void f1(void* ptr)
 {
    for (long i = 0; i < n; i++)
       store(ptr);
 }
 
-void f2()
+void f2(void* ptr)
 {
    long v0x0000 = 0;
    long v0x0101 = 0;
@@ -52,10 +50,10 @@ void f2()
 int main(int arc, char* argv[])
 {
    int offset = std::atoi(argv[1]);
-   ptr = buf + offset;
+   void* ptr = buf + offset;
 
-   std::thread t1(f1);
-   std::thread t2(f2);
+   std::thread t1(f1, ptr);
+   std::thread t2(f2, ptr);
 
    t1.join();
    t2.join();
