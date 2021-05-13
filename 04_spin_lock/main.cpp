@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <iostream>
+#include <limits>
 #include <stdexcept>
 #include <thread>
 #include <vector>
@@ -61,8 +62,22 @@ void print_clock_res()
 static const long n = 1'000'000;
 
 long cnt = 0;
-//Spinlock_naive sln;
-Spinlock sln;
+Spinlock_naive sln;
+//Spinlock sln;
+
+uint64_t ns;
+uint64_t max = 0, min = std::numeric_limits<uint64_t>::max(), sum = 0;
+
+uint64_t update_ns()
+{
+   timespec ts;
+   clock_gettime(CLOCK_MONOTONIC, &ts);
+
+   uint64_t now = 1'000'000'000ULL * (uint64_t)ts.tv_sec + (uint64_t)ts.tv_nsec;
+   uint64_t diff = now - ns;
+   ns = now;
+   return diff;
+}
 
 void f(int thread_num)
 {
@@ -71,6 +86,11 @@ void f(int thread_num)
    while (temp < n)
    {
       sln.lock();
+
+      uint64_t diff = update_ns();
+      if (diff > max) max = diff;
+      if (diff < min) min = diff;
+      sum += diff;
 
       temp = ++cnt;
 
@@ -90,6 +110,8 @@ int main(int argc, char* argv[])
 
    auto begin = std::chrono::high_resolution_clock::now();
 
+   update_ns();
+
    for (int i = 0; i < n_threads; i++)
       threads.emplace_back(f, i);
 
@@ -100,4 +122,8 @@ int main(int argc, char* argv[])
    auto duration = std::chrono::duration_cast< std::chrono::nanoseconds >( end - begin );
    double avg = (double)duration.count() / (double)cnt;
    std::cout << "Time per iteration: " << avg << " [ns]" << std::endl;
+
+   std::cout << "Time between locks - maximum: " << max << " [ns]" << std::endl;
+   std::cout << "Time between locks - average: " << sum / cnt << " [ns]" << std::endl;
+   std::cout << "Time between locks - minimum: " << min << " [ns]" << std::endl;
 }
