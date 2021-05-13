@@ -1,4 +1,5 @@
 #include <atomic>
+#include <chrono>
 #include <cstdint>
 #include <cstdlib>
 #include <iostream>
@@ -31,7 +32,13 @@ class Spinlock
 public:
    void lock()
    {
-      while ( l_.exchange(1, std::memory_order_acquire) ) ;
+      while (true)
+      {
+         while ( l_.load(std::memory_order_relaxed) ) ;
+
+         if ( l_.exchange(1, std::memory_order_acquire) == 0) 
+            break;
+      }
    }
 
    void unlock()
@@ -51,17 +58,21 @@ void print_clock_res()
    std::cout << "clock resolution: " << ts.tv_sec << " [s], " << ts.tv_nsec << " [ns]" << std::endl;
 }
 
+static const long n = 1'000'000;
+
 long cnt = 0;
-Spinlock_naive sln;
+//Spinlock_naive sln;
+Spinlock sln;
 
 void f(int thread_num)
 {
-   while (true)
+   long temp = 0;
+
+   while (temp < n)
    {
       sln.lock();
 
-      if (++cnt > 10'000'000)
-         break;
+      temp = ++cnt;
 
       sln.unlock();
    }
@@ -76,9 +87,17 @@ int main(int argc, char* argv[])
 
    std::vector<std::thread> threads;
    threads.reserve(n_threads);
+
+   auto begin = std::chrono::high_resolution_clock::now();
+
    for (int i = 0; i < n_threads; i++)
       threads.emplace_back(f, i);
 
    for (auto & t : threads) 
       t.join();
+
+   auto end = std::chrono::high_resolution_clock::now();
+   auto duration = std::chrono::duration_cast< std::chrono::nanoseconds >( end - begin );
+   double avg = (double)duration.count() / (double)cnt;
+   std::cout << "Time per iteration: " << avg << " [ns]" << std::endl;
 }

@@ -8,7 +8,7 @@
 extern "C" void spin_lock_naive(void*, void*);
 extern "C" void spin_lock(void*, void*);
 
-const uint64_t n = 10'000'000;
+const uint64_t n = 1'000'000;
 
 bool lock = false;
 
